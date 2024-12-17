@@ -1,0 +1,514 @@
+ROSTemplateFormatVersion: '2015-09-01'
+Description:
+  en: Deploy minecraft service
+  zh-cn: 部署Minecraft游戏服务
+Parameters:
+  PayType:
+    Type: String
+    Label:
+      en: ECS Instance Charge Type
+      zh-cn: 付费类型
+    AssociationProperty: ChargeType
+    AssociationPropertyMetadata:
+      LocaleKey: InstanceChargeType
+    Default: PrePaid
+    AllowedValues:
+      - PostPaid
+      - PrePaid
+  PayPeriodUnit:
+    Type: String
+    Label:
+      en: Pay Period Unit
+      zh-cn: 购买资源时长周期
+    AssociationProperty: PayPeriodUnit
+    AssociationPropertyMetadata:
+      ValueLabelMapping:
+        Month: 月
+        Year: 年
+      Visible:
+        Condition:
+          Fn::Not:
+            Fn::Equals:
+              - ${PayType}
+              - PostPaid
+    Default: Month
+    AllowedValues:
+      - Month
+  PayPeriod:
+    Type: Number
+    Label:
+      en: Period
+      zh-cn: 购买资源时长
+    AssociationProperty: PayPeriod
+    AssociationPropertyMetadata:
+      Visible:
+        Condition:
+          Fn::Not:
+            Fn::Equals:
+              - ${PayType}
+              - PostPaid
+    Default: 1
+    AllowedValues:
+      - 1
+      - 3
+      - 6
+  EcsInstanceType:
+    Type: String
+    Label:
+      en: Instance Type
+      zh-cn: 实例类型
+    AssociationProperty: ALIYUN::ECS::Instance::InstanceType
+    AssociationPropertyMetadata:
+      ZoneId: ${ZoneId}
+      InstanceChargeType: ${PayType}
+  SystemDiskCategory:
+    Type: String
+    AllowedValues:
+      - cloud_efficiency
+      - cloud_essd
+      - cloud_essd_entry
+    Label:
+      en: System Disk Category
+      zh-cn: 系统盘类型
+    AssociationPropertyMetadata:
+      LocaleKey: DiskCategory
+  SystemDiskSize:
+    Type: Number
+    Label:
+      zh-cn: 系统盘空间 (GB)
+      en: System Disk Space (GB)
+    MinValue: 40
+    MaxValue: 2000
+  InternetChargeType:
+    Type: String
+    Label:
+      zh-cn: 带宽付费类型
+      en: Internet Charge Type
+    AssociationPropertyMetadata:
+      ValueLabelMapping:
+        PayByTraffic: 按流量计费
+        PayByBandwidth: 按固定带宽计费
+    AllowedValues:
+      - PayByBandwidth
+      - PayByTraffic
+  InternetMaxBandwidthOut:
+    Type: Number
+    Label:
+      zh-cn: 公网带宽 (Mbps)
+      en: Internet Max Bandwidth Out (Mbps)
+    MinValue: 1
+    MaxValue: 100
+  InstancePassword:
+    Type: String
+    Label:
+      en: Instance Password
+      zh-cn: 实例密码
+    Description:
+      en: Server login password, Length 8-30, must contain three(Capital letters, lowercase letters, numbers, ()`~!@#$%^&*_-+=|{}[]:;'<>,.?/ Special symbol in)
+      zh-cn: 服务器登录密码,长度8-30，必须包含三项（大写字母、小写字母、数字、 ()`~!@#$%^&*_-+=|{}[]:;'<>,.?/ 中的特殊符号）
+    AssociationProperty: ALIYUN::ECS::Instance::Password
+    AssociationPropertyMetadata:
+      OSType: ${OSType}
+    NoEcho: true
+  ZoneId:
+    Type: String
+    Label:
+      en: Availability Zone
+      zh-cn: 可用区
+    AssociationProperty: ALIYUN::ECS::Instance::ZoneId
+    AssociationPropertyMetadata:
+      DefaultValueStrategy: diamond
+      InstanceType: ${EcsInstanceType}
+      SystemDiskCategory: ${SystemDiskCategory}
+      InstanceChargeType: ${PayType}
+  # 游戏参数配置
+  GameMode:
+    Type: String
+    Label:
+      en: GameMode
+      zh-cn: 默认游戏模式
+    Default: survival
+    AllowedPattern: "^[^']*$"
+  EnableCommandBlock:
+    Type: Boolean
+    Label:
+      en: Enable Command Block
+      zh-cn: 是否允许使用命令方块
+    Default: false
+  EnableQuery:
+    Type: Boolean
+    Label:
+      en: Enable Query
+      zh-cn: 启用查询
+    Default: false
+  LevelName:
+    Type: String
+    Label:
+      en: Level Name
+      zh-cn: 服务器世界的名称
+    AllowedPattern: "^[^']*$"
+    Default: world
+  Motd:
+    Type: String
+    Label:
+      en: MOTD
+      zh-cn: 服务器公告
+    AllowedPattern: "^[^']*$"
+    Default: A Minecraft Server
+  Pvp:
+    Type: Boolean
+    Label:
+      en: PvP
+      zh-cn: 玩家对战
+    Default: true
+  GenerateStructures:
+    Type: Boolean
+    Label:
+      en: Generate Structures
+      zh-cn: 是否生成结构（如村庄，要塞等）
+    Default: true
+  Difficulty:
+    Type: String
+    Label:
+      en: Difficulty
+      zh-cn: 游戏难度
+    AllowedPattern: "^[^']*$"
+    Default: easy
+  MaxTickTime:
+    Type: Number
+    Label:
+      en: Max Tick Time
+      zh-cn: 最大刻时间
+    Default: 60000
+  RequireResourcePack:
+    Type: Boolean
+    Label:
+      en: Require Resource Pack
+      zh-cn: 是否要求资源包
+    Default: false
+  MaxPlayers:
+    Type: Number
+    Label:
+      en: Max Players
+      zh-cn: 最大玩家数
+    Default: 20
+  OnlineMode:
+    Type: Boolean
+    Label:
+      en: Online Mode
+      zh-cn: 在线模式
+    Default: true
+  EnableStatus:
+    Type: Boolean
+    Label:
+      en: Enable Status
+      zh-cn: 启用状态
+    Default: true
+  AllowFlight:
+    Type: Boolean
+    Label:
+      en: Allow Flight
+      zh-cn: 允许飞行
+    Default: false
+  ViewDistance:
+    Type: Number
+    Label:
+      en: View Distance
+      zh-cn: 可视距离
+    Default: 10
+  AllowNether:
+    Type: Boolean
+    Label:
+      en: Allow Nether
+      zh-cn: 允许下浅
+    Default: true
+  PreventProxyConnections:
+    Type: Boolean
+    Label:
+      en: Prevent Proxy Connections
+      zh-cn: 阻止代理连接
+    Default: false
+  HideOnlinePlayers:
+    Type: Boolean
+    Label:
+      en: Hide Online Players
+      zh-cn: 隐藏在线玩家
+    Default: false
+  SimulationDistance:
+    Type: Number
+    Label:
+      en: Simulation Distance
+      zh-cn: 模拟距离
+    Default: 10
+  PlayerIdleTimeout:
+    Type: Number
+    Label:
+      en: Player Idle Timeout
+      zh-cn: 玩家闲置超时
+    Default: 0
+  ForceGameMode:
+    Type: Boolean
+    Label:
+      en: Force GameMode
+      zh-cn: 强制游戏模式
+    Default: false
+  RateLimit:
+    Type: Number
+    Label:
+      en: Rate Limit
+      zh-cn: 速率限制
+    Default: 0
+  Hardcore:
+    Type: Boolean
+    Label:
+      en: Hardcore
+      zh-cn: 极难模式
+    Default: false
+  SpawnNpcs:
+    Type: Boolean
+    Label:
+      en: Spawn NPCs
+      zh-cn: 生成NPC
+    Default: true
+  SpawnAnimals:
+    Type: Boolean
+    Label:
+      en: Spawn Animals
+      zh-cn: 生成动物
+    Default: true
+  LogIps:
+    Type: Boolean
+    Label:
+      en: Log IPs
+      zh-cn: 记录IP地址
+    Default: true
+  LevelType:
+    Type: String
+    Label:
+      en: Level Type
+      zh-cn: 世界类型
+    AllowedPattern: "^[^']*$"
+    Default: minecraft\:normal
+  SpawnMonsters:
+    Type: Boolean
+    Label:
+      en: Spawn Monsters
+      zh-cn: 生成怪物
+    Default: true
+  SpawnProtection:
+    Type: Number
+    Label:
+      en: Spawn Protection
+      zh-cn: 出生点保护范围
+    Default: 16
+  MaxWorldSize:
+    Type: Number
+    Label:
+      en: Max World Size
+      zh-cn: 最大世界大小
+    Default: 29999984
+Resources:
+  EcsVpc:
+    Type: ALIYUN::ECS::VPC
+    Properties:
+      CidrBlock: 192.168.0.0/16
+      VpcName:
+        Ref: ALIYUN::StackName
+  EcsVSwitch:
+    Type: ALIYUN::ECS::VSwitch
+    Properties:
+      ZoneId:
+        Ref: ZoneId
+      VpcId:
+        Ref: EcsVpc
+      CidrBlock: 192.168.1.0/24
+  EcsSecurityGroup:
+    Type: ALIYUN::ECS::SecurityGroup
+    Properties:
+      VpcId:
+        Ref: EcsVpc
+      SecurityGroupIngress:
+        - PortRange: 25565/25565
+          Priority: 1
+          SourceCidrIp: 0.0.0.0/0
+          IpProtocol: tcp
+        - PortRange: 22/22
+          Priority: 1
+          SourceCidrIp: 0.0.0.0/0
+          IpProtocol: tcp
+  LinuxEcsInstanceGroup:
+    Type: ALIYUN::ECS::InstanceGroup
+    Properties:
+      WillReplace: false
+      ZoneId:
+        Ref: ZoneId
+      VpcId:
+        Ref: EcsVpc
+      VSwitchId:
+        Ref: EcsVSwitch
+      SecurityGroupId:
+        Ref: EcsSecurityGroup
+      ImageId: centos_7
+      IoOptimized: optimized
+      InstanceChargeType:
+        Ref: PayType
+      PeriodUnit:
+        Ref: PayPeriodUnit
+      Period:
+        Ref: PayPeriod
+      SystemDiskCategory:
+        Ref: SystemDiskCategory
+      SystemDiskSize:
+        Ref: SystemDiskSize
+      MaxAmount: 1
+      InstanceType:
+        Ref: EcsInstanceType
+      Password:
+        Ref: InstancePassword
+      InternetMaxBandwidthOut:
+        Ref: InternetMaxBandwidthOut
+      InternetChargeType:
+        Ref: InternetChargeType
+      InstanceName:
+        Fn::Join:
+          - '-'
+          - - Ref: ALIYUN::StackName
+            - '[1,4]'
+      UserData: |
+        #!/bin/bash
+  InstanceRunCommandForLinuxUser:
+    Type: ALIYUN::ECS::RunCommand
+    DependsOn:
+      - LinuxEcsInstanceGroup
+    Properties:
+      Type: RunShellScript
+      Sync: true
+      Timeout: 1800
+      Username: root
+      InstanceIds:
+        Fn::GetAtt:
+          - LinuxEcsInstanceGroup
+          - InstanceIds
+      CommandContent:
+        Fn::Sub:
+          - |
+            #!/bin/bash
+            sed -i 's/gamemode=[^,)]*/gamemode=${GameMode}/' /opt/minecraft/instances/survival/server.properties
+            sed -i 's/enable-command-block=[^,)]*/enable-command-block=${EnableCommandBlock}/' /opt/minecraft/instances/survival/server.properties
+            sed -i 's/enable-query=[^,)]*/enable-query=${EnableQuery}/' /opt/minecraft/instances/survival/server.properties
+            sed -i 's/level-name=[^,)]*/level-name=${LevelName}/' /opt/minecraft/instances/survival/server.properties
+            sed -i 's/motd=[^,)]*/motd=${Motd}/' /opt/minecraft/instances/survival/server.properties
+            sed -i 's/pvp=[^,)]*/pvp=${Pvp}/' /opt/minecraft/instances/survival/server.properties
+            sed -i 's/generate-structures=[^,)]*/generate-structures=${GenerateStructures}/' /opt/minecraft/instances/survival/server.properties
+            sed -i 's/difficulty=[^,)]*/difficulty=${Difficulty}/' /opt/minecraft/instances/survival/server.properties
+            sed -i 's/max-tick-time=[^,)]*/max-tick-time=${MaxTickTime}/' /opt/minecraft/instances/survival/server.properties
+            sed -i 's/require-resource-pack=[^,)]*/require-resource-pack=${RequireResourcePack}/' /opt/minecraft/instances/survival/server.properties
+            sed -i 's/max-players=[^,)]*/max-players=${MaxPlayers}/' /opt/minecraft/instances/survival/server.properties
+            sed -i 's/online-mode=[^,)]*/online-mode=${OnlineMode}/' /opt/minecraft/instances/survival/server.properties
+            sed -i 's/enable-status=[^,)]*/enable-status=${EnableStatus}/' /opt/minecraft/instances/survival/server.properties
+            sed -i 's/allow-flight=[^,)]*/allow-flight=${AllowFlight}/' /opt/minecraft/instances/survival/server.properties
+            sed -i 's/view-distance=[^,)]*/view-distance=${ViewDistance}/' /opt/minecraft/instances/survival/server.properties
+            sed -i 's/allow-nether=[^,)]*/allow-nether=${AllowNether}/' /opt/minecraft/instances/survival/server.properties
+            sed -i 's/prevent-proxy-connections=[^,)]*/prevent-proxy-connections=${PreventProxyConnections}/' /opt/minecraft/instances/survival/server.properties
+            sed -i 's/hide-online-players=[^,)]*/hide-online-players=${HideOnlinePlayers}/' /opt/minecraft/instances/survival/server.properties
+            sed -i 's/simulation-distance=[^,)]*/simulation-distance=${SimulationDistance}/' /opt/minecraft/instances/survival/server.properties
+            sed -i 's/player-idle-timeout=[^,)]*/player-idle-timeout=${PlayerIdleTimeout}/' /opt/minecraft/instances/survival/server.properties
+            sed -i 's/force-gamemode=[^,)]*/force-gamemode=${ForceGameMode}/' /opt/minecraft/instances/survival/server.properties
+            sed -i 's/rate-limit=[^,)]*/rate-limit=${RateLimit}/' /opt/minecraft/instances/survival/server.properties
+            sed -i 's/hardcore=[^,)]*/hardcore=${Hardcore}/' /opt/minecraft/instances/survival/server.properties
+            sed -i 's/spawn-npcs=[^,)]*/spawn-npcs=${SpawnNpcs}/' /opt/minecraft/instances/survival/server.properties
+            sed -i 's/spawn-animals=[^,)]*/spawn-animals=${SpawnAnimals}/' /opt/minecraft/instances/survival/server.properties
+            sed -i 's/log-ips=[^,)]*/log-ips=${LogIps}/' /opt/minecraft/instances/survival/server.properties
+            sed -i 's/level-type=[^,)]*/level-type=${LevelType}/' /opt/minecraft/instances/survival/server.properties
+            sed -i 's/spawn-monsters=[^,)]*/spawn-monsters=${SpawnMonsters}/' /opt/minecraft/instances/survival/server.properties
+            sed -i 's/spawn-protection=[^,)]*/spawn-protection=${SpawnProtection}/' /opt/minecraft/instances/survival/server.properties
+            sed -i 's/max-world-size=[^,)]*/max-world-size=${MaxWorldSize}/' /opt/minecraft/instances/survival/server.properties
+
+            sudo systemctl restart minecraft.service
+          - LevelName:
+              Ref: LevelName
+Outputs:
+  MinecraftEndpoint:
+    Label:
+      zh-cn: Minecraft服务地址
+      en: Minecraft Service Addresses
+    Value:
+      Fn::Sub:
+        - ${ServerAddress}
+        - ServerAddress:
+            Fn::Select:
+              - 0
+              - Fn::GetAtt:
+                  - LinuxEcsInstanceGroup
+                  - PublicIps
+  document:
+    Label:
+      zh-cn: 操作说明
+      en: operation detail
+    Value: 登录您的Minecraft账号后开始游戏，输入该服务器地址加入游戏即可畅玩啦～
+Metadata:
+  ALIYUN::ROS::Interface:
+    ParameterGroups:
+      - Parameters:
+          - PayType
+          - PayPeriodUnit
+          - PayPeriod
+        Label:
+          default:
+            en: PayType Configuration
+            zh-cn: 付费类型配置
+      - Parameters:
+          - EcsInstanceType
+          - InternetChargeType
+          - InternetMaxBandwidthOut
+          - SystemDiskCategory
+          - SystemDiskSize
+          - InstancePassword
+        Label:
+          default:
+            zh-cn: ECS实例配置
+            en: ECS Instance Configuration
+      - Parameters:
+          - ZoneId
+        Label:
+          default:
+            zh-cn: 可用区配置
+            en: Zone Configuration
+      - Parameters:
+          - GameMode
+          - EnableCommandBlock
+          - EnableQuery
+          - LevelName
+          - Motd
+          - QueryPort
+          - Pvp
+          - GenerateStructures
+          - Difficulty
+          - MaxTickTime
+          - RequireResourcePack
+          - MaxPlayers
+          - OnlineMode
+          - EnableStatus
+          - AllowFlight
+          - ViewDistance
+          - AllowNether
+          - PreventProxyConnections
+          - HideOnlinePlayers
+          - SimulationDistance
+          - PlayerIdleTimeout
+          - ForceGameMode
+          - RateLimit
+          - Hardcore
+          - SpawnNpcs
+          - SpawnAnimals
+          - LogIps
+          - LevelType
+          - SpawnMonsters
+          - EnforceWhitelist
+          - SpawnProtection
+          - MaxWorldSize
+        Label:
+          default:
+            zh-cn: 游戏参数配置
+            en: Server Configuration
+        DefaultExpand: false
