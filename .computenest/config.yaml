@@ -11,7 +11,7 @@ Service:
           ArtifactVersion: ${Artifact.EcsImage.ArtifactVersion}
     TemplateConfigs:
       - Name: 快速部署
-        Url: 'ros_templates/minecraft.yml'
+        Url: 'ros_templates/minecraft.yaml'
       - Name: 迁移到计算巢
         Url: 'ros_templates/minecraft-ecs.yaml'
   ServiceType: private
@@ -22,7 +22,7 @@ Service:
 Artifact:
   EcsImage:
     ArtifactType: EcsImage
-    ArtifactName: aliyun_3_2104_docker_26
+    ArtifactName: minecraft
     Description: Minecraft deploy
     ArtifactProperty:
       RegionId: ${ImageBuilder.EcsImage.RegionId}
