@@ -1,0 +1,71 @@
+Service:
+  RegionId: cn-hangzhou
+  DeployType: ros
+  DeployMetadata:
+    ServiceInstanceNameRule:
+      Prefix: minecraft-
+    SupplierDeployMetadata:
+      ArtifactRelation:
+        'centos_7':
+          ArtifactId: ${Artifact.EcsImage.ArtifactId}
+          ArtifactVersion: ${Artifact.EcsImage.ArtifactVersion}
+    TemplateConfigs:
+      - Name: 快速部署
+        Url: 'ros_templates/minecraft.yml'
+      - Name: 迁移到计算巢
+        Url: 'ros_templates/minecraft-ecs.yaml'
+  ServiceType: private
+  ServiceInfo:
+    Locale: zh-CN
+    ShortDescription: docker deploy
+    Image: 'resources/icons/service_logo.png'
+Artifact:
+  EcsImage:
+    ArtifactType: EcsImage
+    ArtifactName: aliyun_3_2104_docker_26
+    Description: Minecraft deploy
+    ArtifactProperty:
+      RegionId: ${ImageBuilder.EcsImage.RegionId}
+      ImageId: ${ImageBuilder.EcsImage.SourceImageId}
+ImageBuilder:
+  EcsImage:
+    RegionId: ap-southeast-1
+    SourceImageId: ubuntu_24_04_x64_20G_alibase_20241115.vhd
+    SystemDiskSize: 40
+    InstanceType: ecs.c6.large
+    InternetMaxBandwidthOut: 10
+    CommandType: RunShellScript
+    Timeout: 10800
+    CommandContent: |-
+        #!/bin/bash
+        mkdir -p /opt/minecraft/{jars,instances}
+        wget -O /opt/minecraft/jars/server.jar https://piston-data.mojang.com/v1/objects/4707d00eb834b446575d89a61a11b5d548d8c001/server.jar
+        mkdir -p /opt/minecraft/instances/survival
+
+        sudo apt update
+        sudo apt install openjdk-21-jdk -y
+
+        cat >/lib/systemd/system/minecraft.service << EOF
+        [Unit]
+        Description=Minecraft Server
+        Wants=network.target
+        After=network.target
+
+        [Service]
+        Type=simple
+        WorkingDirectory=/opt/minecraft/instances/survival
+        ExecStart=/usr/bin/java -Xms2G -jar /opt/minecraft/jars/server.jar nogui
+        RestartSec=30
+        Restart=on-failure
+        KillMode=process
+        KillSignal=SIGINT
+        SuccessExitStatus=130
+        StandardInput=null
+
+        [Install]
+        WantedBy=default.target
+        EOF
+
+        echo "eula=true" > /opt/minecraft/instances/survival/eula.txt
+        systemctl enable minecraft.service
+        systemctl start minecraft.service

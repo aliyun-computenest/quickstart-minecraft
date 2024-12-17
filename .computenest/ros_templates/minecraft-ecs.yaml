@@ -1,0 +1,485 @@
+ROSTemplateFormatVersion: '2015-09-01'
+Description:
+  en: Deploy minecraft game server
+  zh-cn: 部署我的世界游戏服务
+Parameters:
+  Checkbox:
+    Type: String
+    Label:
+      en: Backup Instructions
+      zh-cn: 备份说明
+    AssociationProperty: AlertCheckbox
+    AssociationPropertyMetadata:
+      Description: 使用本服务会重置ECS系统盘，使用前请确保无重要数据或已完成数据备份，以免丢失数据。
+      ConfirmText: 我已备份完成(或无需备份)
+      Alert: true
+      Type: warning
+      MustChecked: true
+  InstanceId:
+    Type: String
+    Label:
+      en: Select Running ECS Instance
+      zh-cn: 选择运行中的ECS实例
+    AssociationProperty: ALIYUN::ECS::Instance::InstanceId
+    AssociationPropertyMetadata:
+      OnlyShowSelector: true
+      RegionId: ${RegionId}
+      Status: Running
+  CreateImage:
+    Type: String
+    Label:
+      en: Whether Create Backup
+      zh-cn: 是否创建备份
+    Description:
+      zh-cn: 使用本服务将会重置ECS实例的系统盘，使用前请确保无重要数据或已经完成数据备份，避免数据丢失。选择“创建”将会自动为您备份镜像，会产生0.12元/GB/月的相关费用
+      en: Using this service will reset the system disk of the ECS instance. Before using it, please ensure that there is no important data or that you have already completed a data backup to avoid data loss. Choosing "Create" will automatically back up the image for you, which will incur a related cost.
+    Default: 'NoCreate'
+    AllowedValues:
+      - 'Create'
+      - 'NoCreate'
+    AssociationPropertyMetadata:
+      ValueLabelMapping:
+        'NoCreate': 不创建
+        'Create': 创建
+  InstancePassword:
+    Type: String
+    Label:
+      en: ECS Instance Password
+      zh-cn: 实例密码
+    Description:
+      en: Server login password, Length 8-30, must contain three(Capital letters,
+        lowercase letters, numbers, ()`~!@#$%^&*_-+=|{}[]:;'<>,.?/ Special symbol
+        in)
+      zh-cn: 服务器登录密码,长度8-30，必须包含三项（大写字母、小写字母、数字、 ()`~!@#$%^&*_-+=|{}[]:;'<>,.?/ 中的特殊符号）
+    AssociationProperty: ALIYUN::ECS::Instance::Password
+    AssociationPropertyMetadata:
+      OSType: ${OSType}
+    NoEcho: true
+  # 游戏参数配置
+  GameMode:
+    Type: String
+    Label:
+      en: GameMode
+      zh-cn: 默认游戏模式
+    AllowedPattern: "^[^']*$"
+    Default: survival
+  EnableCommandBlock:
+    Type: Boolean
+    Label:
+      en: Enable Command Block
+      zh-cn: 是否允许使用命令方块
+    Default: false
+  EnableQuery:
+    Type: Boolean
+    Label:
+      en: Enable Query
+      zh-cn: 启用查询
+    Default: false
+  LevelName:
+    Type: String
+    Label:
+      en: Level Name
+      zh-cn: 服务器世界的名称
+    AllowedPattern: "^[^']*$"
+    Default: world
+  Motd:
+    Type: String
+    Label:
+      en: MOTD
+      zh-cn: 服务器公告
+    AllowedPattern: "^[^']*$"
+    Default: A Minecraft Server
+  Pvp:
+    Type: Boolean
+    Label:
+      en: PvP
+      zh-cn: 玩家对战
+    Default: true
+  GenerateStructures:
+    Type: Boolean
+    Label:
+      en: Generate Structures
+      zh-cn: 是否生成结构（如村庄，要塞等）
+    Default: true
+  Difficulty:
+    Type: String
+    Label:
+      en: Difficulty
+      zh-cn: 游戏难度
+    AllowedPattern: "^[^']*$"
+    Default: easy
+  MaxTickTime:
+    Type: Number
+    Label:
+      en: Max Tick Time
+      zh-cn: 最大刻时间
+    Default: 60000
+  RequireResourcePack:
+    Type: Boolean
+    Label:
+      en: Require Resource Pack
+      zh-cn: 是否要求资源包
+    Default: false
+  MaxPlayers:
+    Type: Number
+    Label:
+      en: Max Players
+      zh-cn: 最大玩家数
+    Default: 20
+  OnlineMode:
+    Type: Boolean
+    Label:
+      en: Online Mode
+      zh-cn: 在线模式
+    Default: true
+  EnableStatus:
+    Type: Boolean
+    Label:
+      en: Enable Status
+      zh-cn: 启用状态
+    Default: true
+  AllowFlight:
+    Type: Boolean
+    Label:
+      en: Allow Flight
+      zh-cn: 允许飞行
+    Default: false
+  ViewDistance:
+    Type: Number
+    Label:
+      en: View Distance
+      zh-cn: 可视距离
+    Default: 10
+  AllowNether:
+    Type: Boolean
+    Label:
+      en: Allow Nether
+      zh-cn: 允许下浅
+    Default: true
+  PreventProxyConnections:
+    Type: Boolean
+    Label:
+      en: Prevent Proxy Connections
+      zh-cn: 阻止代理连接
+    Default: false
+  HideOnlinePlayers:
+    Type: Boolean
+    Label:
+      en: Hide Online Players
+      zh-cn: 隐藏在线玩家
+    Default: false
+  SimulationDistance:
+    Type: Number
+    Label:
+      en: Simulation Distance
+      zh-cn: 模拟距离
+    Default: 10
+  PlayerIdleTimeout:
+    Type: Number
+    Label:
+      en: Player Idle Timeout
+      zh-cn: 玩家闲置超时
+    Default: 0
+  ForceGameMode:
+    Type: Boolean
+    Label:
+      en: Force GameMode
+      zh-cn: 强制游戏模式
+    Default: false
+  RateLimit:
+    Type: Number
+    Label:
+      en: Rate Limit
+      zh-cn: 速率限制
+    Default: 0
+  Hardcore:
+    Type: Boolean
+    Label:
+      en: Hardcore
+      zh-cn: 极难模式
+    Default: false
+  SpawnNpcs:
+    Type: Boolean
+    Label:
+      en: Spawn NPCs
+      zh-cn: 生成NPC
+    Default: true
+  SpawnAnimals:
+    Type: Boolean
+    Label:
+      en: Spawn Animals
+      zh-cn: 生成动物
+    Default: true
+  LogIps:
+    Type: Boolean
+    Label:
+      en: Log IPs
+      zh-cn: 记录IP地址
+    Default: true
+  LevelType:
+    Type: String
+    Label:
+      en: Level Type
+      zh-cn: 世界类型
+    AllowedPattern: "^[^']*$"
+    Default: minecraft\:normal
+  SpawnMonsters:
+    Type: Boolean
+    Label:
+      en: Spawn Monsters
+      zh-cn: 生成怪物
+    Default: true
+  SpawnProtection:
+    Type: Number
+    Label:
+      en: Spawn Protection
+      zh-cn: 出生点保护范围
+    Default: 16
+  MaxWorldSize:
+    Type: Number
+    Label:
+      en: Max World Size
+      zh-cn: 最大世界大小
+    Default: 29999984
+Conditions:
+  IsCreateImage:
+    Fn::Equals:
+      - Ref: CreateImage
+      - Create
+Mappings:
+  ImageId:
+    Linux:
+      "cn-beijing": "m-2zec34teqmuh0rzh52ga"
+      "cn-wulanchabu": "m-0jlebrskgcid1foaf8ra"
+      "ap-south-1": "m-a2d8dwtgk04kh1349n4o"
+      "cn-qingdao": "m-m5eisv7wnktvlkh9oeup"
+      "cn-wuhan-lr": "m-n4a7ncxo5opn2e8hzjfq"
+      "cn-shanghai": "m-uf6etza2johcx1kv0acp"
+      "cn-hongkong": "m-j6c516mm45amkvt9cpy4"
+      "cn-heyuan": "m-f8z8smfg2vc4kvj63ewm"
+      "eu-central-1": "m-gw8iumtrl4gifecqmxi0"
+      "cn-zhangjiakou": "m-8vb58f4u3rvwf53bzekp"
+      "us-west-1": "m-rj9iukjl0atx89kkikn2"
+      "cn-shenzhen": "m-wz99hndp44mdgq39u8ld"
+      "cn-nanjing": "m-gc72yj15kpoz5wpsa1na"
+      "eu-west-1": "m-d7ocmop8pjfdao0ify8v"
+      "ap-northeast-2": "m-mj7av636cl56r0d15es2"
+      "ap-northeast-1": "m-6we06h1oq79zj0ybx2yn"
+      "cn-fuzhou": "m-gw0185k6mxgnjvc4qcix"
+      "me-east-1": "m-eb3fjv80rh5x449j6pci"
+      "cn-chengdu": "m-2vcg6eisqqx9vvhrbbgn"
+      "cn-guangzhou": "m-7xva9cwixi1prth82hiw"
+      "ap-southeast-1": "m-t4nhtw1zjkhm316lipxb"
+      "ap-southeast-2": "m-p0w3quhvjb38e641zl85"
+      "ap-southeast-3": "m-8psg8ostep9vvqqpomp4"
+      "cn-huhehaote": "m-hp3jdvprla4xz5q8kluo"
+      "ap-southeast-5": "m-k1ab5y15g2u2v4nhe324"
+      "us-east-1": "m-0xi3rv7gqf2nq20nztjx"
+      "ap-southeast-6": "m-5tsbbefxuv6chr3r4j02"
+      "ap-southeast-7": "m-0jo0rj0z4ds9h4xuk1s8"
+      "cn-hangzhou": "m-bp194sf8pbguoyqrg5rk"
+Resources:
+  InstanceDataSource:
+    Type: DATASOURCE::ECS::Instances
+    Properties:
+      InstanceIds:
+        - Ref: InstanceId
+  EcsSecurityGroupIngress22:
+    Type: ALIYUN::ECS::SecurityGroupIngress
+    Properties:
+      SecurityGroupId:
+        Fn::Select:
+          - 0
+          - Fn::Jq:
+              - First
+              - .[].SecurityGroupIds
+              - 'Fn::GetAtt':
+                  - InstanceDataSource
+                  - Instances
+      Priority: 1
+      SourceCidrIp: 0.0.0.0/0
+      IpProtocol: tcp
+      PortRange: '22/22'
+  EcsSecurityGroupIngress25565:
+    Type: ALIYUN::ECS::SecurityGroupIngress
+    Properties:
+      SecurityGroupId:
+        Fn::Select:
+          - 0
+          - Fn::Jq:
+              - First
+              - .[].SecurityGroupIds
+              - 'Fn::GetAtt':
+                  - InstanceDataSource
+                  - Instances
+      Priority: 1
+      SourceCidrIp: 0.0.0.0/0
+      IpProtocol: tcp
+      PortRange: '25565/25565'
+  CustomImage:
+    Type: ALIYUN::ECS::CustomImage
+    Condition: IsCreateImage
+    Properties:
+      InstanceId:
+        Ref: InstanceId
+  Template:
+    Type: ALIYUN::OOS::Template
+    DependsOn:
+      - CustomImage
+    Properties:
+      TemplateName:
+        Fn::Join:
+          - '-'
+          - - template
+            - Ref: ALIYUN::StackName
+      Content: '{"FormatVersion":"OOS-2019-06-01","Description":{"en":"Upgrade Server Version","zh-cn":"升级服务端版本","name-en":"Upgrade Server Version","name-zh-cn":"升级服务端版本"},"Parameters":{"regionId":{"Type":"String","Label":{"en":"RegionId","zh-cn":"地域ID"},"AssociationProperty":"RegionId","Default":"{{ ACS::RegionId }}"},"instanceId":{"Type":"String"},"imageId":{"Type":"String"},"password":{"Type":"String"}},"Tasks":[{"Name":"getInstance","Description":{"en":"Views the ECS instances","zh-cn":"获取ECS实例"},"Action":"ACS::SelectTargets","Properties":{"ResourceType":"ALIYUN::ECS::Instance","RegionId":"{{ regionId }}","Filters":[{"Type":"ResourceIds","ResourceIds":["{{ instanceId }}"],"RegionId":"{{ regionId }}"}]},"Outputs":{"instanceId":{"Type":"String","ValueSelector":"Instances.Instance[].InstanceId"},"OSType":{"Type":"String","ValueSelector":"Instances.Instance[].OSType"}}},{"Name":"replaceSystemDisk","Action":"ACS::ECS::ReplaceSystemDisk","Description":{"en":"Replaces the system disk of ECS instances","zh-cn":"更换系统盘"},"Properties":{"regionId":"{{ regionId }}","instanceId":"{{ getInstance.instanceId }}","imageId":"{{ imageId }}","password":"{{ password }}"}},{"Name":"sleep","Action":"ACS::Sleep","Properties":{"Duration":"PT1M"}}],"Metadata":{"ALIYUN::OOS::Interface":{"ParameterGroups":[{"Parameters":["regionId","instanceId","imageId","password"],"Label":{"default":{"zh-cn":"选择实例","en":"Select Instances"}}}]}}}'
+  ReplaceSystemDisk:
+    Type: ALIYUN::OOS::Execution
+    DependsOn:
+      - Template
+    Properties:
+      SafetyCheck: Skip
+      TemplateName:
+        Fn::Join:
+          - '-'
+          - - template
+            - Ref: ALIYUN::StackName
+      Parameters:
+        regionId:
+          Ref: ALIYUN::Region
+        instanceId:
+          Ref: InstanceId
+        imageId:
+          Fn::FindInMap:
+            - ImageId
+            - Linux
+            - Ref: ALIYUN::Region
+        password:
+          Ref: InstancePassword
+  SleepBeforeRunCommand:
+    Type: ALIYUN::ROS::Sleep
+    DependsOn:
+      - ReplaceSystemDisk
+    Properties:
+      CreateDuration: 60
+  LinuxInstanceRunCommand:
+    Type: ALIYUN::ECS::RunCommand
+    DependsOn:
+      - SleepBeforeRunCommand
+    Properties:
+      Type: RunShellScript
+      Sync: true
+      Timeout: 1800
+      Username: root
+      InstanceIds:
+        - Ref: InstanceId
+      CommandContent:
+        Fn::Sub:
+          - |
+            #!/bin/bash
+            sed -i 's/gamemode=[^,)]*/gamemode=${GameMode}/' /opt/minecraft/instances/survival/server.properties
+            sed -i 's/enable-command-block=[^,)]*/enable-command-block=${EnableCommandBlock}/' /opt/minecraft/instances/survival/server.properties
+            sed -i 's/enable-query=[^,)]*/enable-query=${EnableQuery}/' /opt/minecraft/instances/survival/server.properties
+            sed -i 's/level-name=[^,)]*/level-name=${LevelName}/' /opt/minecraft/instances/survival/server.properties
+            sed -i 's/motd=[^,)]*/motd=${Motd}/' /opt/minecraft/instances/survival/server.properties
+            sed -i 's/pvp=[^,)]*/pvp=${Pvp}/' /opt/minecraft/instances/survival/server.properties
+            sed -i 's/generate-structures=[^,)]*/generate-structures=${GenerateStructures}/' /opt/minecraft/instances/survival/server.properties
+            sed -i 's/difficulty=[^,)]*/difficulty=${Difficulty}/' /opt/minecraft/instances/survival/server.properties
+            sed -i 's/max-tick-time=[^,)]*/max-tick-time=${MaxTickTime}/' /opt/minecraft/instances/survival/server.properties
+            sed -i 's/require-resource-pack=[^,)]*/require-resource-pack=${RequireResourcePack}/' /opt/minecraft/instances/survival/server.properties
+            sed -i 's/max-players=[^,)]*/max-players=${MaxPlayers}/' /opt/minecraft/instances/survival/server.properties
+            sed -i 's/online-mode=[^,)]*/online-mode=${OnlineMode}/' /opt/minecraft/instances/survival/server.properties
+            sed -i 's/enable-status=[^,)]*/enable-status=${EnableStatus}/' /opt/minecraft/instances/survival/server.properties
+            sed -i 's/allow-flight=[^,)]*/allow-flight=${AllowFlight}/' /opt/minecraft/instances/survival/server.properties
+            sed -i 's/view-distance=[^,)]*/view-distance=${ViewDistance}/' /opt/minecraft/instances/survival/server.properties
+            sed -i 's/allow-nether=[^,)]*/allow-nether=${AllowNether}/' /opt/minecraft/instances/survival/server.properties
+            sed -i 's/prevent-proxy-connections=[^,)]*/prevent-proxy-connections=${PreventProxyConnections}/' /opt/minecraft/instances/survival/server.properties
+            sed -i 's/hide-online-players=[^,)]*/hide-online-players=${HideOnlinePlayers}/' /opt/minecraft/instances/survival/server.properties
+            sed -i 's/simulation-distance=[^,)]*/simulation-distance=${SimulationDistance}/' /opt/minecraft/instances/survival/server.properties
+            sed -i 's/player-idle-timeout=[^,)]*/player-idle-timeout=${PlayerIdleTimeout}/' /opt/minecraft/instances/survival/server.properties
+            sed -i 's/force-gamemode=[^,)]*/force-gamemode=${ForceGameMode}/' /opt/minecraft/instances/survival/server.properties
+            sed -i 's/rate-limit=[^,)]*/rate-limit=${RateLimit}/' /opt/minecraft/instances/survival/server.properties
+            sed -i 's/hardcore=[^,)]*/hardcore=${Hardcore}/' /opt/minecraft/instances/survival/server.properties
+            sed -i 's/spawn-npcs=[^,)]*/spawn-npcs=${SpawnNpcs}/' /opt/minecraft/instances/survival/server.properties
+            sed -i 's/spawn-animals=[^,)]*/spawn-animals=${SpawnAnimals}/' /opt/minecraft/instances/survival/server.properties
+            sed -i 's/log-ips=[^,)]*/log-ips=${LogIps}/' /opt/minecraft/instances/survival/server.properties
+            sed -i 's/level-type=[^,)]*/level-type=${LevelType}/' /opt/minecraft/instances/survival/server.properties
+            sed -i 's/spawn-monsters=[^,)]*/spawn-monsters=${SpawnMonsters}/' /opt/minecraft/instances/survival/server.properties
+            sed -i 's/spawn-protection=[^,)]*/spawn-protection=${SpawnProtection}/' /opt/minecraft/instances/survival/server.properties
+            sed -i 's/max-world-size=[^,)]*/max-world-size=${MaxWorldSize}/' /opt/minecraft/instances/survival/server.properties
+
+            sudo systemctl start minecraft.service
+          - LevelName:
+              Ref: LevelName
+Outputs:
+  MinecraftEndpoint:
+    Label:
+      zh-cn: Minecraft服务地址
+      en: Minecraft Service Addresses
+    Value:
+      Fn::Sub:
+        - ${ServerAddress}
+        - ServerAddress:
+            Fn::Select:
+              - 0
+              - Fn::Jq:
+                  - First
+                  - .[].PublicIpAddress
+                  - 'Fn::GetAtt':
+                      - InstanceDataSource
+                      - Instances
+  document:
+    Label:
+      zh-cn: 操作说明
+      en: operation detail
+    Value: 登录您的Minecraft账号后开始游戏，输入该服务器地址加入游戏即可畅玩啦～
+Metadata:
+  ALIYUN::ROS::Interface:
+    ParameterGroups:
+      - Parameters:
+          - Checkbox
+          - InstanceId
+          - CreateImage
+          - InstancePassword
+        Label:
+          default:
+            zh-cn: 配置游戏服务器
+            en: Configure Game Server
+      - Parameters:
+          - GameMode
+          - EnableCommandBlock
+          - EnableQuery
+          - LevelName
+          - Motd
+          - QueryPort
+          - Pvp
+          - GenerateStructures
+          - Difficulty
+          - MaxTickTime
+          - RequireResourcePack
+          - MaxPlayers
+          - OnlineMode
+          - EnableStatus
+          - AllowFlight
+          - ViewDistance
+          - AllowNether
+          - PreventProxyConnections
+          - HideOnlinePlayers
+          - SimulationDistance
+          - PlayerIdleTimeout
+          - ForceGameMode
+          - RateLimit
+          - Hardcore
+          - SpawnNpcs
+          - SpawnAnimals
+          - LogIps
+          - LevelType
+          - SpawnMonsters
+          - EnforceWhitelist
+          - SpawnProtection
+          - MaxWorldSize
+        Label:
+          default:
+            zh-cn: 游戏参数配置
+            en: Server Configuration
+        DefaultExpand: false
