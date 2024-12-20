@@ -246,38 +246,6 @@ Conditions:
     Fn::Equals:
       - Ref: CreateImage
       - Create
-Mappings:
-  ImageId:
-    Linux:
-      "cn-beijing": "m-2zec34teqmuh0rzh52ga"
-      "cn-wulanchabu": "m-0jlebrskgcid1foaf8ra"
-      "ap-south-1": "m-a2d8dwtgk04kh1349n4o"
-      "cn-qingdao": "m-m5eisv7wnktvlkh9oeup"
-      "cn-wuhan-lr": "m-n4a7ncxo5opn2e8hzjfq"
-      "cn-shanghai": "m-uf6etza2johcx1kv0acp"
-      "cn-hongkong": "m-j6c516mm45amkvt9cpy4"
-      "cn-heyuan": "m-f8z8smfg2vc4kvj63ewm"
-      "eu-central-1": "m-gw8iumtrl4gifecqmxi0"
-      "cn-zhangjiakou": "m-8vb58f4u3rvwf53bzekp"
-      "us-west-1": "m-rj9iukjl0atx89kkikn2"
-      "cn-shenzhen": "m-wz99hndp44mdgq39u8ld"
-      "cn-nanjing": "m-gc72yj15kpoz5wpsa1na"
-      "eu-west-1": "m-d7ocmop8pjfdao0ify8v"
-      "ap-northeast-2": "m-mj7av636cl56r0d15es2"
-      "ap-northeast-1": "m-6we06h1oq79zj0ybx2yn"
-      "cn-fuzhou": "m-gw0185k6mxgnjvc4qcix"
-      "me-east-1": "m-eb3fjv80rh5x449j6pci"
-      "cn-chengdu": "m-2vcg6eisqqx9vvhrbbgn"
-      "cn-guangzhou": "m-7xva9cwixi1prth82hiw"
-      "ap-southeast-1": "m-t4nhtw1zjkhm316lipxb"
-      "ap-southeast-2": "m-p0w3quhvjb38e641zl85"
-      "ap-southeast-3": "m-8psg8ostep9vvqqpomp4"
-      "cn-huhehaote": "m-hp3jdvprla4xz5q8kluo"
-      "ap-southeast-5": "m-k1ab5y15g2u2v4nhe324"
-      "us-east-1": "m-0xi3rv7gqf2nq20nztjx"
-      "ap-southeast-6": "m-5tsbbefxuv6chr3r4j02"
-      "ap-southeast-7": "m-0jo0rj0z4ds9h4xuk1s8"
-      "cn-hangzhou": "m-bp194sf8pbguoyqrg5rk"
 Resources:
   InstanceDataSource:
     Type: DATASOURCE::ECS::Instances
@@ -349,11 +317,7 @@ Resources:
           Ref: ALIYUN::Region
         instanceId:
           Ref: InstanceId
-        imageId:
-          Fn::FindInMap:
-            - ImageId
-            - Linux
-            - Ref: ALIYUN::Region
+        imageId: centos_7
         password:
           Ref: InstancePassword
   SleepBeforeRunCommand:
