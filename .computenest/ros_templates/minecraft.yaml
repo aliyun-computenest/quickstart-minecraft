@@ -34,6 +34,7 @@ Parameters:
     Default: Month
     AllowedValues:
       - Month
+      - Year
   PayPeriod:
     Type: Number
     Label:
@@ -348,7 +349,7 @@ Resources:
         Ref: EcsVSwitch
       SecurityGroupId:
         Ref: EcsSecurityGroup
-      ImageId: centos_7
+      ImageId: ubuntu_22
       IoOptimized: optimized
       InstanceChargeType:
         Ref: PayType
