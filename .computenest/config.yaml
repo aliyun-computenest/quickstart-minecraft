@@ -6,12 +6,9 @@ Service:
       Prefix: minecraft-
     SupplierDeployMetadata:
       ArtifactRelation:
-        - 'centos_7':
-            ArtifactId: ${Artifact.EcsImage.ArtifactId}
-            ArtifactVersion: ${Artifact.EcsImage.ArtifactVersion}
-        - 'ubuntu_22':
-            ArtifactId: ${Artifact.EcsImage.ArtifactId}
-            ArtifactVersion: ${Artifact.EcsImage.ArtifactVersion}
+        'centos_7':
+          ArtifactId: ${Artifact.EcsImage.ArtifactId}
+          ArtifactVersion: ${Artifact.EcsImage.ArtifactVersion}
     TemplateConfigs:
       - Name: 快速部署
         Url: 'ros_templates/minecraft.yaml'
