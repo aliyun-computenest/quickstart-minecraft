@@ -17,7 +17,7 @@ Service:
   ServiceType: private
   ServiceInfo:
     Locale: zh-CN
-    ShortDescription: docker deploy
+    ShortDescription: 我的世界（Minecraft）是一款沙盒类电子游戏，该游戏以玩家在一个充满着方块的三维空间中自由地创造和破坏不同种类的方块为主题。玩家在游戏中可以在单人或多人模式中通过摧毁或创造精妙绝伦的建筑物和艺术，或者收集物品探索地图以完成游戏的成就（进度）。
     Image: 'resources/icons/service_logo.jpg'
 Artifact:
   EcsImage:
