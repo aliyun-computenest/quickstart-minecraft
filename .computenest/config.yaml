@@ -6,7 +6,7 @@ Service:
       Prefix: minecraft-
     SupplierDeployMetadata:
       ArtifactRelation:
-        'centos_7':
+        centos_7:
           ArtifactId: ${Artifact.EcsImage.ArtifactId}
           ArtifactVersion: ${Artifact.EcsImage.ArtifactVersion}
     TemplateConfigs:
@@ -39,7 +39,7 @@ ImageBuilder:
     CommandContent: |-
         #!/bin/bash
         mkdir -p /opt/minecraft/{jars,instances}
-        wget -O /opt/minecraft/jars/server.jar https://piston-data.mojang.com/v1/objects/4707d00eb834b446575d89a61a11b5d548d8c001/server.jar
+        wget -O /opt/minecraft/jars/server.jar https://piston-data.mojang.com/v1/objects/e6ec2f64e6080b9b5d9b471b291c33cc7f509733/server.jar
         mkdir -p /opt/minecraft/instances/survival
 
         sudo apt update
