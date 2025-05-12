@@ -1,0 +1,170 @@
+---
+ROSTemplateFormatVersion: "2015-09-01"
+Description:
+  en: "Deploy 7DaysToDie game service"
+  zh-cn: "部署七日杀游戏服务"
+Parameters:
+  InternetMaxBandwidthOut:
+    Label:
+      zh-cn: "公网带宽 (Mbps)"
+      en: "Internet Max Bandwidth Out (Mbps)"
+    MaxValue: 100.0
+    MinValue: 1.0
+    Type: "Number"
+  ZoneId:
+    Label:
+      en: "Availability Zone"
+      zh-cn: "可用区"
+    Type: "String"
+    AssociationProperty: "ALIYUN::ECS::Instance::ZoneId"
+    AssociationPropertyMetadata:
+      DefaultValueStrategy: "diamond"
+      InstanceType: "${EcsInstanceType}"
+      SystemDiskCategory: "${SystemDiskCategory}"
+      InstanceChargeType: "${PayType}"
+  SystemDiskSize:
+    Label:
+      zh-cn: "系统盘空间 (GB)"
+      en: "System Disk Space (GB)"
+    MaxValue: 2000.0
+    MinValue: 100.0
+    Type: "Number"
+  PayPeriod:
+    Label:
+      en: "Period"
+      zh-cn: "购买资源时长"
+    AllowedValues:
+    - 1
+    - 3
+    - 6
+    Type: "Number"
+    Default: 1
+    AssociationProperty: "PayPeriod"
+    AssociationPropertyMetadata:
+      Visible:
+        Condition:
+          Fn::Not:
+            Fn::Equals:
+            - "${PayType}"
+            - "PostPaid"
+  PayPeriodUnit:
+    Label:
+      en: "Pay Period Unit"
+      zh-cn: "购买资源时长周期"
+    AllowedValues:
+    - "Month"
+    Type: "String"
+    Default: "Month"
+    AssociationProperty: "PayPeriodUnit"
+    AssociationPropertyMetadata:
+      ValueLabelMapping:
+        Month: "月"
+        Year: "年"
+      Visible:
+        Condition:
+          Fn::Not:
+            Fn::Equals:
+            - "${PayType}"
+            - "PostPaid"
+  PayType:
+    Label:
+      en: "ECS Instance Charge Type"
+      zh-cn: "付费类型"
+    AllowedValues:
+    - "PostPaid"
+    - "PrePaid"
+    Type: "String"
+    Default: "PrePaid"
+    AssociationProperty: "ChargeType"
+    AssociationPropertyMetadata:
+      LocaleKey: "InstanceChargeType"
+  EcsInstanceType:
+    Label:
+      en: "Instance Type"
+      zh-cn: "实例类型"
+    Type: "String"
+    AssociationProperty: "ALIYUN::ECS::Instance::InstanceType"
+    AssociationPropertyMetadata:
+      ZoneId: "${ZoneId}"
+      InstanceChargeType: "${PayType}"
+  SystemDiskCategory:
+    Label:
+      en: "System Disk Category"
+      zh-cn: "系统盘类型"
+    AllowedValues:
+    - "cloud_efficiency"
+    - "cloud_essd"
+    - "cloud_essd_entry"
+    Type: "String"
+    AssociationPropertyMetadata:
+      LocaleKey: "DiskCategory"
+  InternetChargeType:
+    Label:
+      zh-cn: "带宽付费类型"
+      en: "Internet Charge Type"
+    AllowedValues:
+    - "PayByBandwidth"
+    - "PayByTraffic"
+    Type: "String"
+    AssociationPropertyMetadata:
+      ValueLabelMapping:
+        PayByTraffic: "按流量计费"
+        PayByBandwidth: "按固定带宽计费"
+  InstancePassword:
+    Description:
+      en: "Server login password, Length 8-30, must contain three(Capital letters,\
+        \ lowercase letters, numbers, ()`~!@#$%^&*_-+=|{}[]:;'<>,.?/ Special symbol\
+        \ in)"
+      zh-cn: "服务器登录密码,长度8-30，必须包含三项（大写字母、小写字母、数字、 ()`~!@#$%^&*_-+=|{}[]:;'<>,.?/ 中\
+        的特殊符号）"
+    Label:
+      en: "Instance Password"
+      zh-cn: "实例密码"
+    NoEcho: true
+    Type: "String"
+    AssociationProperty: "ALIYUN::ECS::Instance::Password"
+    AssociationPropertyMetadata:
+      OSType: "linux"
+Outputs:
+  windowsEndpoint:
+    Label:
+      zh-cn: "七日杀服务器地址端口"
+      en: "Service Addresses"
+    Value: "******"
+  document:
+    Label:
+      zh-cn: "操作说明"
+      en: "operation detail"
+    Value: "******"
+Metadata:
+  ALIYUN::ROS::Interface:
+    Hidden:
+    - "Difficulty"
+    ParameterGroups:
+    - Parameters:
+      - "PayType"
+      - "PayPeriodUnit"
+      - "PayPeriod"
+      Label:
+        default:
+          en: "PayType Configuration"
+          zh-cn: "付费类型配置"
+    - Parameters:
+      - "EcsInstanceType"
+      - "InternetChargeType"
+      - "InternetMaxBandwidthOut"
+      - "SystemDiskCategory"
+      - "SystemDiskSize"
+      - "InstancePassword"
+      Label:
+        default:
+          zh-cn: "ECS实例配置"
+          en: "ECS Instance Configuration"
+    - Parameters:
+      - "ZoneId"
+      Label:
+        default:
+          zh-cn: "可用区配置"
+          en: "Zone Configuration"
+    EstimateCostBlockedList:
+    - "InstancePassword"

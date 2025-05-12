@@ -1,0 +1,88 @@
+---
+ROSTemplateFormatVersion: "2015-09-01"
+Description:
+  en: "Deploy 7DaysToDie game server"
+  zh-cn: "部署七日杀游戏服务"
+Parameters:
+  CreateImage:
+    Description:
+      zh-cn: "使用本服务将会重置ECS实例的系统盘，使用前请确保无重要数据或已经完成数据备份，避免数据丢失。选择“创建”将会自动为您备份镜像，会产生\
+        0.12元/GB/月的相关费用"
+      en: "Using this service will reset the system disk of the ECS instance. Before\
+        \ using it, please ensure that there is no important data or that you have\
+        \ already completed a data backup to avoid data loss. Choosing \"Create\"\
+        \ will automatically back up the image for you, which will incur a related\
+        \ cost."
+    Label:
+      en: "Whether Create Backup"
+      zh-cn: "是否创建备份"
+    AllowedValues:
+    - "Create"
+    - "NoCreate"
+    Type: "String"
+    Default: "NoCreate"
+    AssociationPropertyMetadata:
+      ValueLabelMapping:
+        NoCreate: "不创建"
+        Create: "创建"
+  InstanceId:
+    Label:
+      en: "Select Running ECS Instance"
+      zh-cn: "选择运行中的ECS实例"
+    Type: "String"
+    AssociationProperty: "ALIYUN::ECS::Instance::InstanceId"
+    AssociationPropertyMetadata:
+      OnlyShowSelector: true
+      RegionId: "${RegionId}"
+      Status: "Running"
+      DisabledStatus: true
+  Checkbox:
+    Label:
+      en: "Backup Instructions"
+      zh-cn: "备份说明"
+    Type: "String"
+    AssociationProperty: "AlertCheckbox"
+    AssociationPropertyMetadata:
+      Description: "使用本服务会重置ECS系统盘，使用前请确保无重要数据或已完成数据备份，以免丢失数据。"
+      ConfirmText: "我已备份完成(或无需备份)"
+      Alert: true
+      Type: "warning"
+      MustChecked: true
+  InstancePassword:
+    Description:
+      en: "Server login password, Length 8-30, must contain three(Capital letters,\
+        \ lowercase letters, numbers, ()`~!@#$%^&*_-+=|{}[]:;'<>,.?/ Special symbol\
+        \ in)"
+      zh-cn: "服务器登录密码,长度8-30，必须包含三项（大写字母、小写字母、数字、 ()`~!@#$%^&*_-+=|{}[]:;'<>,.?/ 中\
+        的特殊符号）"
+    Label:
+      en: "ECS Instance Password"
+      zh-cn: "实例密码"
+    NoEcho: true
+    Type: "String"
+    AssociationProperty: "ALIYUN::ECS::Instance::Password"
+    AssociationPropertyMetadata:
+      OSType: "${OSType}"
+Outputs:
+  七日杀Endpoint:
+    Label:
+      zh-cn: "七日杀服务地址"
+      en: "7DaysToDie Service Addresses"
+    Value: "******"
+  document:
+    Label:
+      zh-cn: "操作说明"
+      en: "operation detail"
+    Value: "******"
+Metadata:
+  ALIYUN::ROS::Interface:
+    ParameterGroups:
+    - Parameters:
+      - "Checkbox"
+      - "InstanceId"
+      - "CreateImage"
+      - "InstancePassword"
+      Label:
+        default:
+          zh-cn: "配置游戏服务器"
+          en: "Configure Game Server"
