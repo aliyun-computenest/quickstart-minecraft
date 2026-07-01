@@ -10,26 +10,32 @@ Service:
           ArtifactId: ${Artifact.EcsImage.ArtifactId}
           ArtifactVersion: ${Artifact.EcsImage.ArtifactVersion}
     TemplateConfigs:
-      - Name: 快速部署
-        Url: 'ros_templates/minecraft.yaml'
-      - Name: 迁移到计算巢
-        Url: 'ros_templates/minecraft-ecs.yaml'
+    - Name: 快速部署
+      Url: 'ros_templates/minecraft.yaml'
+    - Name: 迁移到计算巢
+      Url: 'ros_templates/minecraft-ecs.yaml'
   ServiceType: private
   ServiceInfo:
-    - Agreements: []
-      Image: resources/icons/service_logo.jpg
-      Locale: zh-CN
-      Name: 我的世界 - 快速部署
-      ShortDescription: 我的世界（Minecraft）是一款沙盒类电子游戏，该游戏以玩家在一个充满着方块的三维空间中自由地创造和破坏不同种类的方块为主题。玩家在游戏中可以在单人或多人模式中通过摧毁或创造精妙绝伦的建筑物和艺术，或者收集物品探索地图以完成游戏的成就（进度）。
-      Softwares: []
-    - Agreements: []
-      Image: resources/icons/service_logo.jpg
-      Locale: en-US
-      Name: Minecraft-Rapid Deployment
-      ShortDescription: Minecraft is a sandbox video game in which the player is free to create and destroy different kinds of blocks in a three-dimensional space filled with blocks.
-        Players can complete the game's achievements (progress) by destroying or creating exquisite buildings and art, or collecting items to explore the map in single or multiplayer
-        mode.
-      Softwares: []
+  - Agreements: []
+    Image: resources/icons/service_logo.jpg
+    Locale: zh-CN
+    Name: 我的世界 - 快速部署
+    ShortDescription: 
+      我的世界（Minecraft）是一款沙盒类电子游戏，该游戏以玩家在一个充满着方块的三维空间中自由地创造和破坏不同种类的方块为主题。玩家在游戏中可以在单人或多人模式中通过摧毁或创造精妙绝伦的建筑物和艺术，或者收集物品探索地图以完成游戏的成就（进度）。
+    Softwares:
+    - Name: docker-minecraft-server
+      Version: v2026.6.1
+  - Agreements: []
+    Image: resources/icons/service_logo.jpg
+    Locale: en-US
+    Name: Minecraft-Rapid Deployment
+    ShortDescription: Minecraft is a sandbox video game in which the player is 
+      free to create and destroy different kinds of blocks in a 
+      three-dimensional space filled with blocks. Players can complete the 
+      game's achievements (progress) by destroying or creating exquisite 
+      buildings and art, or collecting items to explore the map in single or 
+      multiplayer mode.
+    Softwares: []
 Artifact:
   EcsImage:
     ArtifactType: EcsImage
@@ -48,36 +54,36 @@ ImageBuilder:
     CommandType: RunShellScript
     Timeout: 10800
     CommandContent: |-
-        #!/bin/bash
-        mkdir -p /opt/minecraft/{jars,instances}
-        wget -O /opt/minecraft/jars/server.jar https://piston-data.mojang.com/v1/objects/6bce4ef400e4efaa63a13d5e6f6b500be969ef81/server.jar
+      #!/bin/bash
+      mkdir -p /opt/minecraft/{jars,instances}
+      wget -O /opt/minecraft/jars/server.jar https://piston-data.mojang.com/v1/objects/6bce4ef400e4efaa63a13d5e6f6b500be969ef81/server.jar
 
-        mkdir -p /opt/minecraft/instances/survival
+      mkdir -p /opt/minecraft/instances/survival
 
-        sudo apt update
-        sudo apt install openjdk-21-jdk -y
+      sudo apt update
+      sudo apt install openjdk-21-jdk -y
 
-        cat >/lib/systemd/system/minecraft.service << EOF
-        [Unit]
-        Description=Minecraft Server
-        Wants=network.target
-        After=network.target
+      cat >/lib/systemd/system/minecraft.service << EOF
+      [Unit]
+      Description=Minecraft Server
+      Wants=network.target
+      After=network.target
 
-        [Service]
-        Type=simple
-        WorkingDirectory=/opt/minecraft/instances/survival
-        ExecStart=/usr/bin/java -Xms2G -jar /opt/minecraft/jars/server.jar nogui
-        RestartSec=30
-        Restart=on-failure
-        KillMode=process
-        KillSignal=SIGINT
-        SuccessExitStatus=130
-        StandardInput=null
+      [Service]
+      Type=simple
+      WorkingDirectory=/opt/minecraft/instances/survival
+      ExecStart=/usr/bin/java -Xms2G -jar /opt/minecraft/jars/server.jar nogui
+      RestartSec=30
+      Restart=on-failure
+      KillMode=process
+      KillSignal=SIGINT
+      SuccessExitStatus=130
+      StandardInput=null
 
-        [Install]
-        WantedBy=default.target
-        EOF
+      [Install]
+      WantedBy=default.target
+      EOF
 
-        echo "eula=true" > /opt/minecraft/instances/survival/eula.txt
-        systemctl enable minecraft.service
-        systemctl start minecraft.service
+      echo "eula=true" > /opt/minecraft/instances/survival/eula.txt
+      systemctl enable minecraft.service
+      systemctl start minecraft.service
